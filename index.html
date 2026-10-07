@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WrittenBy</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#fff;--fg:#111;--sub:#777;--line:#e6e6e6;--chip:#f3f3f3;--btn:#111;--btnfg:#fff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f0f0f;--fg:#f2f2f2;--sub:#8a8a8a;--line:#262626;--chip:#1c1c1c;--btn:#f2f2f2;--btnfg:#111}}
+:root[data-theme="dark"]{--bg:#0f0f0f;--fg:#f2f2f2;--sub:#8a8a8a;--line:#262626;--chip:#1c1c1c;--btn:#f2f2f2;--btnfg:#111}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--fg);font:15px/1.6 -apple-system,"Noto Sans KR","Apple SD Gothic Neo",sans-serif}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0}
+header{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);border-bottom:1px solid var(--line);z-index:5}
+.w{max-width:600px;margin:0 auto}
+header .w{padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+.logo{font-weight:800;font-size:20px;letter-spacing:-.5px}
+.st{font-size:12px;color:var(--sub)}
+main{max-width:600px;margin:0 auto;padding-bottom:150px;min-height:70vh}
+.chips{display:flex;gap:8px;padding:12px 16px;overflow-x:auto}
+.chip{padding:5px 14px;border-radius:99px;background:var(--chip);color:var(--sub);white-space:nowrap;font-size:14px}
+.chip.on{background:var(--btn);color:var(--btnfg)}
+.card{padding:18px 16px;border-bottom:1px solid var(--line)}
+.meta{display:flex;justify-content:space-between;font-size:12px;color:var(--sub);margin-bottom:10px}
+.tag{border:1px solid var(--line);border-radius:4px;padding:0 6px;margin-right:6px}
+.card h3{font-size:18px;margin-bottom:8px}
+.card img{width:100%;border-radius:10px;margin:4px 0 12px;display:block}
+.txt{white-space:pre-wrap;font-family:"Noto Serif KR","Nanum Myeongjo",serif;word-break:break-word}
+blockquote{font:500 19px/1.7 "Noto Serif KR","Nanum Myeongjo",serif;white-space:pre-wrap;word-break:break-word}
+.by{margin-top:10px;font-size:13px;color:var(--sub)}
+.acts{display:flex;gap:4px;margin-top:12px;margin-left:-8px;flex-wrap:wrap}
+.acts button{padding:4px 8px;border-radius:8px;color:var(--sub);font-size:13px}
+.acts button.on{color:var(--fg);font-weight:700}
+.acts button:hover{background:var(--chip)}
+.cms{margin-top:8px;padding:10px 12px;background:var(--chip);border-radius:10px;font-size:14px}
+.cm{padding:3px 0}.cm span{color:var(--sub);font-size:11px;margin-left:4px}
+.cin{display:flex;gap:6px;margin-top:8px}
+.cin input{flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg)}
+.pbtn{background:var(--btn);color:var(--btnfg);padding:8px 16px;border-radius:10px;font-weight:600}
+.gbtn{border:1px solid var(--line);padding:8px 14px;border-radius:10px}
+.fab{position:fixed;right:max(16px,calc(50% - 284px));bottom:calc(64px + env(safe-area-inset-bottom,0px));box-shadow:0 4px 16px #0004;padding:12px 20px;border-radius:99px}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
+nav .w{display:flex}
+nav button{flex:1;padding:9px 0 8px;color:var(--sub);font-weight:600;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:3px}
+.i{width:22px;height:22px;flex:none}
+.ab{display:flex;align-items:center;justify-content:center;gap:10px}
+.ab .i{width:18px;height:18px}
+nav button.on{color:var(--fg)}
+.empty{text-align:center;color:var(--sub);padding:70px 20px}
+.prof{padding:24px 16px;display:flex;gap:14px;align-items:center}
+.av{width:56px;height:56px;border-radius:50%;background:var(--btn);color:var(--btnfg);display:grid;place-items:center;font-size:22px;font-weight:700}
+.row{display:flex;justify-content:space-between;align-items:center;padding:16px;border-bottom:1px solid var(--line);gap:10px}
+.row small{display:block;color:var(--sub)}
+.ov{position:fixed;inset:0;background:#0007;display:none;align-items:flex-end;justify-content:center;z-index:20}
+.ov.on{display:flex}
+.sheet{background:var(--bg);width:100%;max-width:600px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom,0px))}
+.sheet h2{font-size:17px;margin-bottom:12px}
+.f{margin-bottom:12px}
+.f label{display:block;font-size:12px;color:var(--sub);margin-bottom:4px}
+.f input,.f textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg)}
+.f textarea{min-height:140px;resize:vertical}
+.hide{display:none}
+.sin{flex:1;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg)}
+.x{color:var(--sub);margin-left:6px;font-size:12px}
+.pv{max-width:100%;max-height:160px;border-radius:8px;margin-top:8px}
+#toast{position:fixed;left:50%;bottom:120px;transform:translateX(-50%);background:var(--btn);color:var(--btnfg);padding:9px 16px;border-radius:99px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:30}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+<header><div class="w"><span class="logo">WrittenBy</span><span class="st" id="st">연결 중…</span></div></header>
+<main id="app"></main>
+<button class="pbtn fab" data-act="new">＋ 글쓰기</button>
+<nav><div class="w"><button data-act="tab" data-v="home"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 11 12 3.5 20.5 11"/><path d="M5.5 9.5V20h4.5v-6h4v6h4.5V9.5"/></svg><span>홈</span></button><button data-act="tab" data-v="saved"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3.5h11V20.5L12 16.5l-5.5 4z"/></svg><span>저장</span></button><button data-act="tab" data-v="me"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 21c0-3.8 3.4-6 7.5-6s7.5 2.2 7.5 6"/></svg><span>마이</span></button></div></nav>
+<div class="ov" id="ov"><div class="sheet" id="sheet"></div></div>
+<div id="toast"></div>
+<input type="file" id="imp" accept="application/json" class="hide">
+<script type="module">
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+let me=LS.get('gg_me',null),saved=LS.get('gg_saved',[]),theme=LS.get('gg_theme',null);
+let tab='home',ftype='all',mtab='mine',open={},drafts={},imgData=null,curT='시',cache={},feed=[],mineIds=[],likedSet=new Set(),likedIds=[],cm={},cursor=null,hasMore=false,AUTH=null,USER=null,afterAuth=null,loaded={},sess=[],seqF=0,seqM=0,seqL=0;const busy=new Set();
+let sterm='',sres=[],seqS=0,PENDING=null;
+const nz=t=>String(t||'').toLowerCase().replace(/\s+/g,'');
+const grams=t=>{const x=nz(t),o=new Set();for(let i=0;i<x.length-1;i++)o.add(x.slice(i,i+2));return o};
+const makeKw=p=>{const o=new Set();[p.title,p.author,p.book,p.poster].forEach(t=>grams(t).forEach(g=>o.add(g)));if(p.type==='명언')grams((p.body||'').slice(0,150)).forEach(g=>o.add(g));return [...o].slice(0,250)};
+const hay=p=>nz([p.title,p.author,p.book,p.poster,p.body].join(' '));
+if(theme)document.documentElement.dataset.theme=theme;
+const rid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const ago=t=>{const s=(Date.now()-t)/1e3;return s<60?'방금':s<3600?Math.floor(s/60)+'분 전':s<86400?Math.floor(s/3600)+'시간 전':Math.floor(s/86400)+'일 전'};
+let tt;const toast=m=>{const e=$('#toast');e.textContent=m;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),2200)};
+const showM=h=>{$('#sheet').innerHTML=h;$('#ov').classList.add('on')},hideM=()=>{afterAuth=null;$('#ov').classList.remove('on')};
+
+/* ---------- Firebase ---------- */
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,onAuthStateChanged,GoogleAuthProvider,GithubAuthProvider,signInWithPopup,createUserWithEmailAndPassword,signInWithEmailAndPassword,sendEmailVerification,sendPasswordResetEmail,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getFirestore,collection,doc,setDoc,deleteDoc,getDoc,getDocs,query,where,orderBy,limit,startAfter,writeBatch,increment} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+/* ▼▼▼ Firebase 콘솔 > 프로젝트 설정 > 웹 앱의 값으로 교체 ▼▼▼ */
+const CFG={apiKey:"AIzaSyBQpqPpAP4kfFI5jgPWxiytFiZzsIaODkk",authDomain:"writtenby-81001.firebaseapp.com",projectId:"writtenby-81001",appId:"1:889552777449:web:779ec1b031661fe12a8078"};
+/* 관리자 Google 이메일 (화면 표시용. 실제 권한은 firestore.rules의 이메일이 결정) */
+const ADMINS=['bihaychoi1205@gmail.com'];
+/* ▲▲▲ */
+const app=initializeApp(CFG),auth=getAuth(app),db=getFirestore(app),PAGE=20;
+const isAdm=()=>!!USER&&USER.emailVerified&&ADMINS.includes((USER.email||'').toLowerCase());
+const needVerify=()=>false;
+const PL={'password':'이메일','google.com':'Google','github.com':'GitHub'};
+const MSG={'permission-denied':'권한이 없어요 (규칙 확인 또는 중복 요청)','auth/email-already-in-use':'이미 가입된 이메일이에요','auth/invalid-credential':'이메일 또는 비밀번호가 맞지 않아요','auth/wrong-password':'이메일 또는 비밀번호가 맞지 않아요','auth/user-not-found':'가입되지 않은 이메일이에요','auth/weak-password':'비밀번호는 6자 이상이어야 해요','auth/invalid-email':'이메일 형식이 올바르지 않아요','auth/account-exists-with-different-credential':'같은 이메일로 다른 방법으로 가입돼 있어요. 그 방법으로 로그인해 주세요','auth/operation-not-allowed':'콘솔에서 이 로그인 방법을 켜 주세요','auth/too-many-requests':'잠시 후 다시 시도해 주세요','auth/popup-blocked':'팝업이 차단됐어요. 허용해 주세요','auth/unauthorized-domain':'Firebase 승인된 도메인에 이 주소를 추가해 주세요','auth/requires-recent-login':'다시 로그인해 주세요'};
+const err=e=>{console.error(e);toast(MSG[e&&e.code]||'오류: '+((e&&e.code)||e))};
+const W=async f=>{
+  if(!AUTH){toast('먼저 로그인해 주세요');return false}
+  if(needVerify()){try{await USER.reload();await USER.getIdToken(true)}catch{}if(needVerify()){toast('이메일 인증이 필요해요. 메일의 링크를 누른 뒤 다시 시도해 주세요');return false}}
+  try{await f();return true}catch(e){err(e);return false}};
+const addP=d=>{cache[d.id]={id:d.id,...d.data()};return d.id};
+async function loadFeed(more){
+  const my=++seqF;
+  try{
+    const s=await getDocs(query(collection(db,'posts'),orderBy('ts','desc'),...(more&&cursor?[startAfter(cursor)]:[]),limit(PAGE)));
+    if(my!==seqF)return;
+    const ids=s.docs.map(addP);
+    feed=more?[...feed,...ids.filter(i=>!feed.includes(i))]:[...sess.filter(i=>cache[i]&&!ids.includes(i)),...ids];
+    cursor=s.docs[s.docs.length-1]||cursor;hasMore=s.size===PAGE;
+  }catch(e){err(e)}
+  loaded.feed=true;render();
+}
+async function loadMine(){
+  const u=AUTH,my=++seqM;if(!u)return;
+  try{
+    const s=await getDocs(query(collection(db,'posts'),where('uid','==',u),limit(50)));
+    if(my!==seqM||u!==AUTH)return;
+    const ids=s.docs.map(addP);mineIds=[...sess.filter(i=>cache[i]&&cache[i].uid===u&&!ids.includes(i)),...ids];
+  }catch(e){err(e)}
+  loaded.mine=true;render();
+}
+async function loadLikes(){
+  const u=AUTH,my=++seqL;if(!u)return;
+  try{
+    const s=await getDocs(query(collection(db,'users',u,'likes'),orderBy('ts','desc'),limit(100)));
+    if(my!==seqL||u!==AUTH)return;
+    likedIds=s.docs.map(d=>d.id);likedSet=new Set(likedIds);
+  }catch(e){err(e)}
+  loaded.likes=true;render();ensure(likedIds.slice(0,30));
+}
+async function ensure(ids){await Promise.all(ids.filter(i=>!cache[i]).slice(0,30).map(async i=>{try{const d=await getDoc(doc(db,'posts',i));if(d.exists())addP(d)}catch{}}));render()}
+async function doSearch(){
+  const q=(drafts.sq||'').trim(),qn=nz(q);
+  if(!q){sterm='';render();return}
+  if(qn.length<2){toast('두 글자 이상 입력해 주세요');return}
+  sterm=q;loaded.search=false;render();
+  const my=++seqS;let ids=[];
+  try{const r=await getDocs(query(collection(db,'posts'),where('kw','array-contains',qn.slice(0,2)),limit(60)));ids=r.docs.map(addP)}catch(e){err(e)}
+  if(my!==seqS)return;
+  sres=[...new Set([...ids,...Object.keys(cache)])].map(i=>cache[i]).filter(p=>p&&hay(p).includes(qn)).sort((a,b)=>b.ts-a.ts).map(p=>p.id);
+  loaded.search=true;render();
+}
+async function loadCm(pid){try{const s=await getDocs(query(collection(db,'posts',pid,'comments'),orderBy('ts'),limit(50)));cm[pid]=s.docs.map(d=>({id:d.id,...d.data()}));render()}catch(e){err(e)}}
+function applyUser(u){
+  if(u&&(u.isAnonymous||!u.email)){if(!u.isAnonymous)toast('이메일 정보가 있는 계정만 로그인할 수 있어요 (GitHub는 이메일을 공개/허용해 주세요)');signOut(auth);return}
+  PENDING=u&&u.email&&!u.emailVerified?u:null;if(PENDING)u=null;
+  USER=u;AUTH=u?u.uid:null;if(me&&AUTH)me.uid=AUTH;
+  likedSet=new Set();likedIds=[];mineIds=[];loaded.mine=loaded.likes=false;seqM++;seqL++;
+  $('#st').textContent=PENDING?'이메일 인증 대기':!u?'로그인 전 (읽기만 가능)':isAdm()?'관리자 로그인':(PL[u.providerData[0]?.providerId]||'')+' 로그인';
+  if(u){loadLikes();if(tab==='me')loadMine()}
+  render();
+}
+onAuthStateChanged(auth,applyUser);
+loadFeed();
+/* 로그인: 이메일 / Google / GitHub — 셋 다 이메일 인증 완료 계정만 사용 가능 */
+const PROVIDERS={google:['Google',()=>new GoogleAuthProvider()],github:['GitHub',()=>{const g=new GithubAuthProvider();g.addScope('user:email');return g}]};
+const ENABLED=['google','github'];
+async function socialLogin(key){
+  try{await signInWithPopup(auth,PROVIDERS[key][1]());const u=auth.currentUser;if(u){try{await u.getIdToken(true)}catch{}applyUser(u)}return true}
+  catch(e){if(!['auth/popup-closed-by-user','auth/cancelled-popup-request'].includes(e.code))err(e);return false}
+}
+const ICONS={google:`<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 8.2A8 8 0 1 0 20 12h-7.5"/></svg>`,github:`<svg class="i" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>`,mail:`<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 7.5 8.5 6 8.5-6"/></svg>`};
+const authBtns=()=>`<div style="display:grid;gap:10px;max-width:280px;margin:0 auto">${ENABLED.map((k,i)=>`<button class="${i?'gbtn':'pbtn'} ab" data-act="social" data-v="${k}">${ICONS[k]}${PROVIDERS[k][0]}로 계속하기</button>`).join('')}<button class="gbtn ab" data-act="email">${ICONS.mail}이메일로 로그인 / 가입</button></div>`;
+function authModal(){if(PENDING)return verifyModal();showM(`<h2>로그인</h2><p class="st" style="margin-bottom:16px">글을 올리고 좋아요·댓글을 남기려면 인증된 계정이 필요해요. 공개되는 건 닉네임뿐이에요.</p>${authBtns()}`)}
+function emailModal(){showM(`<h2>이메일로 시작</h2><div class="f"><label>이메일</label><input id="em" type="email" autocomplete="email"></div><div class="f"><label>비밀번호 (6자 이상)</label><input id="pw" type="password" autocomplete="current-password"></div><button class="pbtn" data-act="elogin" style="width:100%;margin-bottom:8px">로그인</button><button class="gbtn" data-act="esignup" style="width:100%">가입하기 (인증 메일 발송)</button><button class="gbtn" data-act="reset" style="width:100%;margin-top:8px">비밀번호 재설정 메일 받기</button><p class="st" style="margin-top:10px">비밀번호를 잊었다면 위 칸에 이메일을 적고 재설정 메일을 받으세요. 메일이 안 보이면 스팸함도 확인해 주세요.<br>가입 후에는 메일의 링크로 인증해야 로그인돼요.</p>`)}
+const verifyHtml=()=>`<p style="margin-bottom:14px">${esc(PENDING.email)} 로 보낸 메일의 링크를 눌러 인증한 뒤, 아래 버튼을 눌러 주세요.</p><div style="display:grid;gap:10px;max-width:280px;margin:0 auto"><button class="pbtn" data-act="vdone">인증 완료</button><button class="gbtn" data-act="resend">인증 메일 다시 보내기</button><button class="gbtn" data-act="logout">다른 방법으로 로그인</button></div>`;
+const verifyBox=()=>`<div class="empty"><b style="color:var(--fg);font-size:17px">이메일 인증이 필요해요</b><div style="margin-top:12px">${verifyHtml()}</div></div>`;
+function verifyModal(){showM(`<h2>이메일 인증이 필요해요</h2>${verifyHtml()}`)}
+const loginBox=()=>`<div class="empty"><b style="color:var(--fg);font-size:17px">로그인</b><div style="margin:8px 0 22px">인증된 계정으로 로그인하면 기기를 옮겨도 내 글을 관리할 수 있어요.<br>공개되는 건 닉네임뿐이에요.</div>${authBtns()}</div>`;
+const anonRow=()=>'';
+const acctRow=()=>USER?`<div class="row"><div>계정<small>${esc(USER.email||PL[USER.providerData[0]?.providerId]||'')}${isAdm()?' · 관리자':''}</small></div><button class="gbtn" data-act="logout">로그아웃</button></div>${USER.providerData.some(x=>x.providerId==='password')?`<div class="row"><div>비밀번호 변경<small>재설정 메일을 보내 드려요</small></div><button class="gbtn" data-act="resetme">메일 받기</button></div>`:''}`:'';
+
+/* ---------- 이름(익명) ---------- */
+function needName(cb,force){
+  if(!AUTH){afterAuth=()=>needName(cb,force);return authModal()}
+  if(me&&!force)return cb&&cb();
+  showM(`<h2>익명 이름 만들기</h2><p class="st" style="margin-bottom:12px">이 기기에 저장되는 이름이에요. 실명이 아니어도 돼요.</p><div class="f"><input id="nm" maxlength="12" placeholder="예: 새벽의 독자" value="${esc(me?.name||'')}"></div><button class="pbtn" id="nmok" style="width:100%">확인</button>`);
+  $('#nmok').onclick=()=>{const n=$('#nm').value.trim();if(!n)return toast('이름을 입력해 주세요');me={uid:AUTH,name:n};LS.set('gg_me',me);hideM();render();cb&&cb()};
+}
+
+/* ---------- 글쓰기 ---------- */
+function compose(){
+  curT='시';imgData=null;
+  showM(`<h2>글 올리기</h2>
+  <div class="chips" style="padding:0 0 12px" id="tc">${['시','명언','글'].map(t=>`<button class="chip${t==='시'?' on':''}" data-act="ct" data-v="${t}">${t}</button>`).join('')}</div>
+  <div class="f" data-for="시 글"><label>제목</label><input id="f_title" maxlength="60"></div>
+  <div class="f"><label id="l_body">내용</label><textarea id="f_body" maxlength="3000"></textarea></div>
+  <div class="f"><label id="l_author">지은이</label><input id="f_author" maxlength="30"></div>
+  <div class="f" data-for="시"><label>시집 (선택)</label><input id="f_book" maxlength="40"></div>
+  <div class="f" data-for="시 글"><label>사진 (선택)</label><input type="file" id="f_img" accept="image/*"><img id="pv" class="pv hide"></div>
+  <button class="pbtn" data-act="post" style="width:100%">공유하기</button>`);
+  setT('시');
+  $('#f_img').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{imgData=await shrink(f);$('#pv').src=imgData;$('#pv').classList.remove('hide')}catch{toast('사진을 읽지 못했어요')}};
+}
+function setT(t){curT=t;document.querySelectorAll('#tc .chip').forEach(b=>b.classList.toggle('on',b.dataset.v===t));
+  document.querySelectorAll('#sheet [data-for]').forEach(e=>e.classList.toggle('hide',!e.dataset.for.split(' ').includes(t)));
+  $('#l_body').textContent=t==='명언'?'내용':'본문';$('#l_author').textContent=t==='명언'?'말한 사람':'지은이'}
+function shrink(file,max=720){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const s=Math.min(1,max/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=i.width*s;c.height=i.height*s;c.getContext('2d').drawImage(i,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.72))};i.onerror=rej;i.src=r.result};r.onerror=rej;r.readAsDataURL(file)})}
+async function submit(){
+  const v=k=>($('#f_'+k).value||'').trim(),t=curT;
+  const p={type:t,body:v('body'),author:v('author'),ts:Date.now(),uid:AUTH,poster:me.name};
+  if(t!=='명언')p.title=v('title');
+  if(t==='시'&&v('book'))p.book=v('book');
+  if(t!=='명언'&&imgData)p.img=imgData;
+  if(!p.body||!p.author||(t!=='명언'&&!p.title))return toast('필수 항목을 입력해 주세요');
+  const id=rid();p.kw=makeKw(p);p.likeCount=0;p.cmtCount=0;if(await W(()=>setDoc(doc(db,'posts',id),p))){cache[id]={id,...p};sess.unshift(id);feed=[id,...feed.filter(x=>x!==id)];mineIds=[id,...mineIds.filter(x=>x!==id)];ftype='all';hideM();tab='home';render();scrollTo(0,0);toast('공유했어요')}
+}
+
+/* ---------- 렌더 ---------- */
+function card(p){
+  const liked=likedSet.has(p.id),C=cm[p.id]||[],sv=saved.includes(p.id),mine=AUTH&&p.uid===AUTH,adm=isAdm();
+  const img=p.img&&/^data:image\//.test(p.img)?`<img src="${p.img}" alt="">`:'';
+  const body=p.type==='명언'?`<blockquote>“${esc(p.body)}”</blockquote><div class="by">— ${esc(p.author)}</div>`
+    :`<h3>${esc(p.title)}</h3>${img}<div class="txt">${esc(p.body)}</div><div class="by">${esc(p.author)}${p.book?` · 『${esc(p.book)}』`:''}</div>`;
+  const cmHtml=open[p.id]?`<div class="cms">${C.map(c=>`<div class="cm"><b>${esc(c.name)}</b> ${esc(c.text)}<span>${ago(c.ts)}</span>${(AUTH&&c.uid===AUTH)||adm?`<button class="x" data-act="dc" data-id="${p.id}" data-c="${c.id}">✕</button>`:''}</div>`).join('')||'<div class="st">첫 댓글을 남겨 보세요</div>'}<div class="cin"><input data-cin="${p.id}" maxlength="200" placeholder="댓글 달기…" value="${esc(drafts[p.id]||'')}"><button class="pbtn" data-act="cs" data-id="${p.id}">등록</button></div></div>`:'';
+  return `<article class="card"><div class="meta"><span><span class="tag">${p.type}</span>${esc(p.poster)}</span><span>${ago(p.ts)}</span></div>${body}
+  <div class="acts"><button data-act="like" data-id="${p.id}" class="${liked?'on':''}">${liked?'♥':'♡'} ${p.likeCount||0}</button><button data-act="cm" data-id="${p.id}" class="${open[p.id]?'on':''}">댓글 ${p.cmtCount||0}</button><button data-act="sv" data-id="${p.id}" class="${sv?'on':''}">${sv?'저장됨':'저장'}</button><button data-act="img" data-id="${p.id}">이미지</button>${mine||adm?`<button data-act="del" data-id="${p.id}">${mine?'삭제':'관리자 삭제'}</button>`:''}</div>${cmHtml}</article>`;
+}
+const list=(a,ld)=>ld?'<div class="empty">불러오는 중…</div>':(a=a.filter(Boolean)).length?a.map(card).join(''):'<div class="empty">아직 아무것도 없어요</div>';
+const byIds=ids=>ids.map(i=>cache[i]);
+function render(){
+  const ae=document.activeElement,key=ae&&ae.dataset&&ae.dataset.cin,pos=ae&&ae.selectionStart;
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===tab));
+  document.querySelector('.fab').style.display=tab==='me'&&mtab==='set'?'none':'';
+  let h='';
+  if(tab==='home'){
+    const ok=p=>p&&(ftype==='all'||p.type===ftype),ids=sterm?sres:feed,n=byIds(ids).filter(ok).length;
+    h=`<div style="display:flex;gap:8px;padding:12px 16px 0"><input class="sin" data-cin="sq" placeholder="제목·지은이·시집·명언 검색" maxlength="40" value="${esc(drafts.sq||'')}"><button class="pbtn" data-act="search">검색</button></div>`
+    +`<div class="chips">${['all','시','명언','글'].map(t=>`<button class="chip${ftype===t?' on':''}" data-act="ft" data-v="${t}">${t==='all'?'전체':t}</button>`).join('')}</div>`
+    +(sterm?`<div class="st" style="padding:0 16px 8px">“${esc(sterm)}” 검색 결과 ${loaded.search?n+'건':'…'} · <button class="x" data-act="sclear" style="margin:0;text-decoration:underline">검색 지우기</button></div>`:'')
+    +list(byIds(ids).filter(ok),sterm?!loaded.search:!loaded.feed)+(!sterm&&hasMore?'<div style="padding:16px;text-align:center"><button class="gbtn" data-act="more">더 보기</button></div>':'');
+  }
+  else if(tab==='saved')h=list(byIds(saved));
+  else h=mypage();
+  $('#app').innerHTML=h;
+  if(key){const e=document.querySelector(`[data-cin="${key}"]`);if(e){e.focus();try{e.setSelectionRange(pos,pos)}catch{}}}
+}
+function mypage(){
+  if(!AUTH)return PENDING?verifyBox():loginBox();
+  if(!me)return `<div class="empty">아직 이름이 없어요<br><br><button class="pbtn" data-act="name">이름 만들기</button></div>`;
+  const mine=byIds(mineIds).filter(Boolean).sort((a,b)=>b.ts-a.ts),got=mine.reduce((n,p)=>n+(p.likeCount||0),0),liked=byIds(likedIds).filter(Boolean);
+  let h=`<div class="prof"><div class="av">${esc(me.name[0])}</div><div><b style="font-size:18px">${esc(me.name)}</b>${isAdm()?' <span class="tag">관리자</span>':''}<div class="st">글 ${mine.length} · 받은 좋아요 ${got} · 저장 ${saved.length}</div></div></div>
+  ${anonRow()}<div class="chips">${[['mine','내 글'],['liked','좋아요'],['set','설정']].map(([k,n])=>`<button class="chip${mtab===k?' on':''}" data-act="mt" data-v="${k}">${n}</button>`).join('')}</div>`;
+  if(mtab==='mine')h+=list(mine,!loaded.mine);
+  else if(mtab==='liked')h+=list(liked,!loaded.likes);
+  else h+=`${acctRow()}<div class="row"><div>화면 모드<small>화이트 / 다크</small></div><div><button class="chip${theme!=='dark'?' on':''}" data-act="theme" data-v="light">화이트</button> <button class="chip${theme==='dark'?' on':''}" data-act="theme" data-v="dark">다크</button></div></div>
+  <div class="row"><div>이름 변경<small>${esc(me.name)}</small></div><button class="gbtn" data-act="rename">변경</button></div>
+  <div class="row"><div>정보 내보내기<small>이름·저장 목록·설정을 파일로</small></div><button class="gbtn" data-act="exp">내보내기</button></div>
+  <div class="row"><div>정보 불러오기<small>내보낸 파일로 복원</small></div><button class="gbtn" data-act="imp">불러오기</button></div>
+  <div class="row"><div>내 정보 사진으로<small>프로필 카드를 이미지(PNG)로</small></div><button class="gbtn" data-act="pimg">사진 저장</button></div>`;
+  return h;
+}
+
+/* ---------- 파일 저장 / 이미지 내보내기 ---------- */
+async function saveFile(filename,data){
+  let dl=null;try{dl=window.claude?await claude.use('downloads'):null}catch{}
+  try{
+    if(dl){await dl.save({filename,data});return}
+    const a=document.createElement('a');a.href=URL.createObjectURL(data instanceof Blob?data:new Blob([data]));a.download=filename;a.click();
+  }catch(e){if(!e||e.code!=='declined')toast('저장하지 못했어요')}
+}
+async function toImage(o,name){
+  const W=1080,P=90,cs=getComputedStyle(document.documentElement),g=k=>cs.getPropertyValue(k).trim();
+  const c=document.createElement('canvas'),x=c.getContext('2d'),F='"Noto Serif KR","Nanum Myeongjo",serif',S='-apple-system,"Noto Sans KR",sans-serif';
+  const wrap=(t,f)=>{x.font=f;const out=[];for(const para of String(t).split('\n')){let l='';for(const ch of para){if(x.measureText(l+ch).width>W-2*P){out.push(l);l=ch}else l+=ch}out.push(l)}return out};
+  let im=null;if(o.img)im=await new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=o.img});
+  const tl=o.title?wrap(o.title,'700 56px '+F):[],bf=(o.quote?'500 52px ':'400 38px ')+F,bl=wrap(o.body,bf),bh=o.quote?76:58,ih=im?Math.round((W-2*P)*im.height/im.width):0;
+  const H=P+60+tl.length*76+(tl.length?20:0)+(im?ih+40:0)+bl.length*bh+90+90+P;
+  c.width=W;c.height=H;x.fillStyle=g('--bg');x.fillRect(0,0,W,H);x.textBaseline='top';
+  let y=P;x.fillStyle=g('--sub');x.font='600 28px '+S;x.fillText(o.tag,P,y);y+=60;
+  x.fillStyle=g('--fg');x.font='700 56px '+F;tl.forEach(l=>{x.fillText(l,P,y);y+=76});if(tl.length)y+=20;
+  if(im){x.drawImage(im,P,y,W-2*P,ih);y+=ih+40}
+  x.font=bf;x.fillStyle=g('--fg');bl.forEach(l=>{x.fillText(l,P,y);y+=bh});y+=30;
+  x.fillStyle=g('--sub');x.font='500 32px '+S;x.fillText(o.by||'',P,y);
+  x.font='600 24px '+S;x.fillText('WrittenBy',P,H-P-24);
+  c.toBlob(b=>b?saveFile(name+'.png',b):toast('이미지 생성 실패'),'image/png');
+}
+
+/* ---------- 이벤트 ---------- */
+document.addEventListener('click',async e=>{
+  if(e.target.id==='ov')return hideM();
+  const b=e.target.closest('[data-act]');if(!b)return;
+  const a=b.dataset.act,id=b.dataset.id,v=b.dataset.v,p=cache[id];
+  switch(a){
+    case 'tab':tab=v;render();scrollTo(0,0);if(v==='saved')ensure(saved);if(v==='me'){loadMine();loadLikes()}break;
+    case 'ft':ftype=v;render();break;
+    case 'more':loadFeed(true);break;
+    case 'social':{const f=afterAuth;if(await socialLogin(v)){hideM();if(AUTH){toast('로그인했어요');f&&f()}else{verifyModal();afterAuth=f}}break}
+    case 'email':emailModal();break;
+    case 'elogin':{const f=afterAuth;try{applyUser((await signInWithEmailAndPassword(auth,$('#em').value.trim(),$('#pw').value)).user);hideM();if(AUTH)f&&f();else{verifyModal();afterAuth=f}}catch(e){err(e)}break}
+    case 'esignup':{const f=afterAuth;try{const u=(await createUserWithEmailAndPassword(auth,$('#em').value.trim(),$('#pw').value)).user;await sendEmailVerification(u);applyUser(u);hideM();verifyModal();afterAuth=f;toast('인증 메일을 보냈어요')}catch(e){err(e)}break}
+    case 'reset':{const em=$('#em').value.trim();if(!em){toast('이메일을 입력해 주세요');break}try{await sendPasswordResetEmail(auth,em);toast('비밀번호 재설정 메일을 보냈어요')}catch(e){err(e)}break}
+    case 'resetme':try{await sendPasswordResetEmail(auth,USER.email);toast('재설정 메일을 보냈어요. 메일함을 확인해 주세요')}catch(e){err(e)}break;
+    case 'resend':try{await sendEmailVerification(PENDING||USER);toast('인증 메일을 보냈어요')}catch(e){err(e)}break;
+    case 'vdone':{const f=afterAuth,u=PENDING||auth.currentUser;try{await u.reload();await u.getIdToken(true)}catch{}applyUser(auth.currentUser);if(AUTH){hideM();toast('인증됐어요');f&&f()}else toast('아직 인증되지 않았어요. 메일의 링크를 눌러 주세요');break}
+    case 'logout':await signOut(auth);hideM();toast('로그아웃했어요');break;
+    case 'search':doSearch();break;
+    case 'sclear':sterm='';drafts.sq='';render();break;
+    case 'mt':mtab=v;render();break;
+    case 'new':needName(compose);break;
+    case 'ct':setT(v);break;
+    case 'post':submit();break;
+    case 'name':needName(()=>{});break;
+    case 'rename':needName(()=>{},true);break;
+    case 'like':needName(async()=>{
+      if(busy.has(id))return;busy.add(id);
+      try{const on=likedSet.has(id),pr=doc(db,'posts',id),lr=doc(db,'users',AUTH,'likes',id);
+        if(await W(async()=>{const bt=writeBatch(db);on?bt.delete(lr):bt.set(lr,{ts:Date.now()});bt.update(pr,{likeCount:increment(on?-1:1)});await bt.commit()})){on?likedSet.delete(id):likedSet.add(id);likedIds=on?likedIds.filter(x=>x!==id):[id,...likedIds];if(cache[id])cache[id].likeCount=Math.max(0,(cache[id].likeCount||0)+(on?-1:1));render()}else loadLikes();
+      }finally{busy.delete(id)}});break;
+    case 'cm':open[id]=!open[id];render();if(open[id])loadCm(id);break;
+    case 'cs':needName(async()=>{const t=(drafts[id]||'').trim();if(!t)return;if(await W(async()=>{const b=writeBatch(db);b.set(doc(collection(db,'posts',id,'comments')),{uid:AUTH,name:me.name,text:t,ts:Date.now()});b.update(doc(db,'posts',id),{cmtCount:increment(1)});await b.commit()})){drafts[id]='';if(cache[id])cache[id].cmtCount=(cache[id].cmtCount||0)+1;loadCm(id)}});break;
+    case 'sv':saved=saved.includes(id)?saved.filter(x=>x!==id):[...saved,id];LS.set('gg_saved',saved);render();break;
+    case 'del':if(confirm('이 글을 삭제할까요?'))if(await W(()=>deleteDoc(doc(db,'posts',id)))){sess=sess.filter(x=>x!==id);feed=feed.filter(x=>x!==id);mineIds=mineIds.filter(x=>x!==id);delete cache[id];render()}break;
+    case 'img':if(p)toImage({tag:p.type,title:p.type==='명언'?'':p.title,body:p.type==='명언'?'“'+p.body+'”':p.body,quote:p.type==='명언',img:p.img,by:(p.type==='명언'?'— ':'')+p.author+(p.book?' · 『'+p.book+'』':'')},'WrittenBy-'+(p.title||p.author));break;
+    case 'theme':theme=v;LS.set('gg_theme',v);document.documentElement.dataset.theme=v;render();break;
+    case 'exp':saveFile('WrittenBy-백업.json',JSON.stringify({app:'geulgyeol',v:2,name:me.name,saved,theme}));break;
+    case 'imp':$('#imp').click();break;
+    case 'pimg':{const mine=byIds(mineIds).filter(Boolean);toImage({tag:'프로필',title:me.name,body:`쓴 글 ${mine.length}편\n받은 좋아요 ${mine.reduce((n,p)=>n+(p.likeCount||0),0)}개\n저장한 글 ${saved.length}편`,by:'익명으로 쓰는 중'},'WrittenBy-프로필');break}
+  }
+});
+document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.cin;if(k)drafts[k]=e.target.value});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.dataset&&e.target.dataset.cin){const k=e.target.dataset.cin;if(k==='sq')doSearch();else document.querySelector(`[data-act="cs"][data-id="${k}"]`).click()}});
+$('#imp').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{
+    const d=JSON.parse(await f.text());if(d.app!=='geulgyeol')throw 0;
+    if(d.name||d.me)me={uid:AUTH,name:d.name||d.me.name},LS.set('gg_me',me);
+    if(Array.isArray(d.saved))saved=[...new Set([...saved,...d.saved])],LS.set('gg_saved',saved);
+    if(d.theme){theme=d.theme;LS.set('gg_theme',theme);document.documentElement.dataset.theme=theme}
+    render();toast('불러왔어요');
+  }catch{toast('올바른 백업 파일이 아니에요')}
+};
+render();
+</script>
+</body>
+</html>
