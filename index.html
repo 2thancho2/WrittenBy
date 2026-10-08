@@ -80,15 +80,15 @@ nav button.on{color:var(--fg)}
 <script type="module">
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
-let me=LS.get('gg_me',null),saved=LS.get('gg_saved',[]),theme=LS.get('gg_theme',null);
+let me=null,saved=[],theme=null,profP=Promise.resolve(),seqP=0;
+const setTheme=t=>{theme=t;if(t)document.documentElement.dataset.theme=t;else delete document.documentElement.dataset.theme};
 let tab='home',ftype='all',mtab='mine',open={},drafts={},imgData=null,curT='시',cache={},feed=[],mineIds=[],likedSet=new Set(),likedIds=[],cm={},cursor=null,hasMore=false,AUTH=null,USER=null,afterAuth=null,loaded={},sess=[],seqF=0,seqM=0,seqL=0;const busy=new Set();
 let sterm='',sres=[],seqS=0,PENDING=null;
 const nz=t=>String(t||'').toLowerCase().replace(/\s+/g,'');
 const grams=t=>{const x=nz(t),o=new Set();for(let i=0;i<x.length-1;i++)o.add(x.slice(i,i+2));return o};
 const makeKw=p=>{const o=new Set();[p.title,p.author,p.book,p.poster].forEach(t=>grams(t).forEach(g=>o.add(g)));if(p.type==='명언')grams((p.body||'').slice(0,150)).forEach(g=>o.add(g));return [...o].slice(0,250)};
 const hay=p=>nz([p.title,p.author,p.book,p.poster,p.body].join(' '));
-if(theme)document.documentElement.dataset.theme=theme;
+
 const rid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 const ago=t=>{const s=(Date.now()-t)/1e3;return s<60?'방금':s<3600?Math.floor(s/60)+'분 전':s<86400?Math.floor(s/3600)+'시간 전':Math.floor(s/86400)+'일 전'};
 let tt;const toast=m=>{const e=$('#toast');e.textContent=m;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),2200)};
@@ -156,13 +156,26 @@ async function doSearch(){
   loaded.search=true;render();
 }
 async function loadCm(pid){try{const s=await getDocs(query(collection(db,'posts',pid,'comments'),orderBy('ts'),limit(50)));cm[pid]=s.docs.map(d=>({id:d.id,...d.data()}));render()}catch(e){err(e)}}
+const saveProfile=patch=>W(()=>setDoc(doc(db,'users',AUTH),patch,{merge:true}));
+async function loadProfile(){
+  const u=AUTH,my=++seqP;if(!u)return;
+  try{
+    const d=await getDoc(doc(db,'users',u));if(my!==seqP||u!==AUTH)return;
+    const x=d.exists()?d.data():{};
+    me=x.name?{uid:u,name:x.name}:null;saved=Array.isArray(x.saved)?x.saved:[];setTheme(x.theme||null);
+  }catch(e){err(e)}
+  loaded.profile=true;render();if(tab==='saved')ensure(saved);
+}
 function applyUser(u){
-  if(u&&(u.isAnonymous||!u.email)){if(!u.isAnonymous)toast('이메일 정보가 있는 계정만 로그인할 수 있어요 ');signOut(auth);return}
+  if(u&&(u.isAnonymous||!u.email)){if(!u.isAnonymous)toast('이메일 정보가 있는 계정만 로그인할 수 있어요');signOut(auth);return}
   PENDING=u&&u.email&&!u.emailVerified?u:null;if(PENDING)u=null;
-  USER=u;AUTH=u?u.uid:null;if(me&&AUTH)me.uid=AUTH;
-  likedSet=new Set();likedIds=[];mineIds=[];loaded.mine=loaded.likes=false;seqM++;seqL++;
+  const prev=AUTH;USER=u;AUTH=u?u.uid:null;
+  if(AUTH!==prev){
+    me=null;saved=[];setTheme(null);loaded.profile=false;
+    likedSet=new Set();likedIds=[];mineIds=[];loaded.mine=loaded.likes=false;seqM++;seqL++;seqP++;
+    if(AUTH){profP=loadProfile();loadLikes();if(tab==='me')loadMine()}
+  }
   $('#st').textContent=PENDING?'이메일 인증 대기':!u?'로그인 전 (읽기만 가능)':isAdm()?'관리자 로그인':(PL[u.providerData[0]?.providerId]||'')+' 로그인';
-  if(u){loadLikes();if(tab==='me')loadMine()}
   render();
 }
 onAuthStateChanged(auth,applyUser);
@@ -185,12 +198,14 @@ const loginBox=()=>`<div class="empty"><b style="color:var(--fg);font-size:17px"
 const anonRow=()=>'';
 const acctRow=()=>USER?`<div class="row"><div>계정<small>${esc(USER.email||PL[USER.providerData[0]?.providerId]||'')}${isAdm()?' · 관리자':''}</small></div><button class="gbtn" data-act="logout">로그아웃</button></div>${USER.providerData.some(x=>x.providerId==='password')?`<div class="row"><div>비밀번호 변경<small>재설정 메일을 보내 드려요</small></div><button class="gbtn" data-act="resetme">메일 받기</button></div>`:''}`:'';
 
-/* ---------- 이름(익명) ---------- */
-function needName(cb,force){
+/* ---------- 이름 ---------- */
+async function needName(cb,force){
   if(!AUTH){afterAuth=()=>needName(cb,force);return authModal()}
+  while(!loaded.profile&&AUTH)await profP;
+  if(!AUTH)return;
   if(me&&!force)return cb&&cb();
-  showM(`<h2>익명 이름 만들기</h2><p class="st" style="margin-bottom:12px">이 기기에 저장되는 이름이에요. 실명이 아니어도 돼요.</p><div class="f"><input id="nm" maxlength="12" placeholder="예: 새벽의 독자" value="${esc(me?.name||'')}"></div><button class="pbtn" id="nmok" style="width:100%">확인</button>`);
-  $('#nmok').onclick=()=>{const n=$('#nm').value.trim();if(!n)return toast('이름을 입력해 주세요');me={uid:AUTH,name:n};LS.set('gg_me',me);hideM();render();cb&&cb()};
+  showM(`<h2>이름 만들기</h2><p class="st" style="margin-bottom:12px">계정에 저장되어 어느 기기에서든 같은 이름을 써요. 실명이 아니어도 돼요.</p><div class="f"><input id="nm" maxlength="12" placeholder="예: 새벽의 독자" value="${esc(me?.name||'')}"></div><button class="pbtn" id="nmok" style="width:100%">확인</button>`);
+  $('#nmok').onclick=async()=>{const n=$('#nm').value.trim();if(!n)return toast('이름을 입력해 주세요');if(await saveProfile({name:n})){me={uid:AUTH,name:n};hideM();render();cb&&cb()}};
 }
 
 /* ---------- 글쓰기 ---------- */
@@ -245,13 +260,14 @@ function render(){
     +(sterm?`<div class="st" style="padding:0 16px 8px">“${esc(sterm)}” 검색 결과 ${loaded.search?n+'건':'…'} · <button class="x" data-act="sclear" style="margin:0;text-decoration:underline">검색 지우기</button></div>`:'')
     +list(byIds(ids).filter(ok),sterm?!loaded.search:!loaded.feed)+(!sterm&&hasMore?'<div style="padding:16px;text-align:center"><button class="gbtn" data-act="more">더 보기</button></div>':'');
   }
-  else if(tab==='saved')h=list(byIds(saved));
+  else if(tab==='saved')h=!AUTH?(PENDING?verifyBox():loginBox()):list(byIds(saved),!loaded.profile);
   else h=mypage();
   $('#app').innerHTML=h;
   if(key){const e=document.querySelector(`[data-cin="${key}"]`);if(e){e.focus();try{e.setSelectionRange(pos,pos)}catch{}}}
 }
 function mypage(){
   if(!AUTH)return PENDING?verifyBox():loginBox();
+  if(!loaded.profile)return '<div class="empty">불러오는 중…</div>';
   if(!me)return `<div class="empty">아직 이름이 없어요<br><br><button class="pbtn" data-act="name">이름 만들기</button></div>`;
   const mine=byIds(mineIds).filter(Boolean).sort((a,b)=>b.ts-a.ts),got=mine.reduce((n,p)=>n+(p.likeCount||0),0),liked=byIds(likedIds).filter(Boolean);
   let h=`<div class="prof"><div class="av">${esc(me.name[0])}</div><div><b style="font-size:18px">${esc(me.name)}</b>${isAdm()?' <span class="tag">관리자</span>':''}<div class="st">글 ${mine.length} · 받은 좋아요 ${got} · 저장 ${saved.length}</div></div></div>
@@ -324,13 +340,13 @@ document.addEventListener('click',async e=>{
       }finally{busy.delete(id)}});break;
     case 'cm':open[id]=!open[id];render();if(open[id])loadCm(id);break;
     case 'cs':needName(async()=>{const t=(drafts[id]||'').trim();if(!t)return;if(await W(async()=>{const b=writeBatch(db);b.set(doc(collection(db,'posts',id,'comments')),{uid:AUTH,name:me.name,text:t,ts:Date.now()});b.update(doc(db,'posts',id),{cmtCount:increment(1)});await b.commit()})){drafts[id]='';if(cache[id])cache[id].cmtCount=(cache[id].cmtCount||0)+1;loadCm(id)}});break;
-    case 'sv':saved=saved.includes(id)?saved.filter(x=>x!==id):[...saved,id];LS.set('gg_saved',saved);render();break;
+    case 'sv':needName(async()=>{const ns=saved.includes(id)?saved.filter(x=>x!==id):[...saved,id];if(await saveProfile({saved:ns})){saved=ns;render()}});break;
     case 'del':if(confirm('이 글을 삭제할까요?'))if(await W(()=>deleteDoc(doc(db,'posts',id)))){sess=sess.filter(x=>x!==id);feed=feed.filter(x=>x!==id);mineIds=mineIds.filter(x=>x!==id);delete cache[id];render()}break;
     case 'img':if(p)toImage({tag:p.type,title:p.type==='명언'?'':p.title,body:p.type==='명언'?'“'+p.body+'”':p.body,quote:p.type==='명언',img:p.img,by:(p.type==='명언'?'— ':'')+p.author+(p.book?' · 『'+p.book+'』':'')},'WrittenBy-'+(p.title||p.author));break;
-    case 'theme':theme=v;LS.set('gg_theme',v);document.documentElement.dataset.theme=v;render();break;
-    case 'exp':saveFile('WrittenBy-백업.json',JSON.stringify({app:'geulgyeol',v:2,name:me.name,saved,theme}));break;
+    case 'theme':setTheme(v);render();saveProfile({theme:v});break;
+    case 'exp':saveFile('WrittenBy-backup.json',JSON.stringify({app:'geulgyeol',v:3,name:me.name,saved,theme}));break;
     case 'imp':$('#imp').click();break;
-    case 'pimg':{const mine=byIds(mineIds).filter(Boolean);toImage({tag:'프로필',title:me.name,body:`쓴 글 ${mine.length}편\n받은 좋아요 ${mine.reduce((n,p)=>n+(p.likeCount||0),0)}개\n저장한 글 ${saved.length}편`,by:'익명으로 쓰는 중'},'WrittenBy-프로필');break}
+    case 'pimg':{const mine=byIds(mineIds).filter(Boolean);toImage({tag:'프로필',title:me.name,body:`쓴 글 ${mine.length}편\n받은 좋아요 ${mine.reduce((n,p)=>n+(p.likeCount||0),0)}개\n저장한 글 ${saved.length}편`,by:''},'WrittenBy-profile');break}
   }
 });
 document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.cin;if(k)drafts[k]=e.target.value});
@@ -339,9 +355,13 @@ $('#imp').onchange=async e=>{
   const f=e.target.files[0];e.target.value='';if(!f)return;
   try{
     const d=JSON.parse(await f.text());if(d.app!=='geulgyeol')throw 0;
-    if(d.name||d.me)me={uid:AUTH,name:d.name||d.me.name},LS.set('gg_me',me);
-    if(Array.isArray(d.saved))saved=[...new Set([...saved,...d.saved])],LS.set('gg_saved',saved);
-    if(d.theme){theme=d.theme;LS.set('gg_theme',theme);document.documentElement.dataset.theme=theme}
+    if(!AUTH){toast('로그인 후 불러올 수 있어요');return}
+    const pt={},nm=String(d.name||d.me?.name||'').slice(0,12);
+    if(nm)pt.name=nm;
+    if(Array.isArray(d.saved))pt.saved=[...new Set([...saved,...d.saved.map(String)])].slice(0,500);
+    if(['light','dark'].includes(d.theme))pt.theme=d.theme;
+    if(!await saveProfile(pt))return;
+    if(pt.name)me={uid:AUTH,name:pt.name};if(pt.saved)saved=pt.saved;if(pt.theme)setTheme(pt.theme);
     render();toast('불러왔어요');
   }catch{toast('올바른 백업 파일이 아니에요')}
 };
